@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from db.models import Book
+from fastapi import HTTPException
 
 
 def add_book(db: Session, title:str, author:str, year:int, is_available:bool=True):
@@ -37,21 +38,24 @@ def available_books(db: Session):
 
 
 def get_borrow(db: Session, book_id: int):
-    book = db.query(Book).filter(Book.id==book_id).first()
-    if book:
-        book.is_available = False
-        db.commit()
-        return True
-    return False
+    book = db.query(Book).filter(Book.id == book_id).first()
+    if not book: raise HTTPException(status_code=404, detail="Book not found.")
+    if not book.is_available: raise HTTPException(status_code=400, detail="Book is already borrowed.")
+    book.is_available = False
+    db.commit()
+    db.refresh(book)
+    return book
 
 
 def get_return(db: Session, book_id: int):
     book = db.query(Book).filter(Book.id==book_id).first()
-    if book:
-        book.is_available = True
-        db.commit()
-        return True
-    return False
+    if not book: raise HTTPException(status_code=404, detail="Book not found.")
+    if book.is_available: raise HTTPException(status_code=400, detail="Book is already returned.")
+
+    book.is_available = True
+    db.commit()
+    db.refresh(book)
+    return book
 
 
 def delete_book(db: Session, book_id: int):
@@ -59,6 +63,5 @@ def delete_book(db: Session, book_id: int):
     if book:
         db.delete(book)
         db.commit()
-        return {"message": "Deleted!"}
-    return {"message": "Not found!"}
-
+        return True
+    return False

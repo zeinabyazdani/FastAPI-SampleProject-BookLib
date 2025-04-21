@@ -1,10 +1,14 @@
 from sqlalchemy.orm import Session
 from db.models import Book
+from schemas.book import BookCreate
 from fastapi import HTTPException
 
 
-def add_book(db: Session, title:str, author:str, year:int, is_available:bool=True):
-    book = Book(title=title, author=author, year=year, is_available=is_available)
+def add_book(db: Session, request: BookCreate):
+    book = Book(title = request.title, 
+                author = request.author, 
+                year = request.year, 
+                is_available = request.is_available)
     db.add(book)
     db.commit()
     db.refresh(book)
@@ -19,13 +23,13 @@ def get_book_by_id(db: Session, book_id: int):
     return db.query(Book).filter(Book.id==book_id).first()
 
 
-def update_book(db: Session, book_id:int, title:str, author:str, year:int, is_available:bool):
+def update_book(book_id, db: Session, request: BookCreate):
     book = db.query(Book).filter(Book.id==book_id).first()
     if book:
-        book.title = title
-        book.author = author
-        book.year = year
-        book.is_available = is_available
+        book.title = request.title
+        book.author = request.author
+        book.year = request.year
+        book.is_available = request.is_available
         db.commit()
         db.refresh(book)
         return {"message": "Updated!"}

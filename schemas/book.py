@@ -14,4 +14,7 @@ class BookOut(BaseModel):
     author : str
     year: int
     is_available: bool
+
+    class Config:
+        orm_mode = True    
     

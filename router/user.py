@@ -12,7 +12,7 @@ router = APIRouter(prefix='/user', tags=['user'])
 # Create user
 @router.post('/', response_model=UserOut)
 def create_user_view(user: UserCreate, db: Session = Depends(get_db)):
-    return db_user.create_user(db, user)
+    return db_user.create_user(user, db)
 
 
 # Get users
@@ -21,10 +21,10 @@ def get_all_users_view(db: Session = Depends(get_db)):
     return db_user.get_users(db)
 
 
-# get user
+# get user by id
 @router.get('/{user_id}', response_model=UserOut)
 def get_user_view(user_id: int, db: Session = Depends(get_db)):
-    user = db_user.get_user_by_id(db, user_id=user_id)
+    user = db_user.get_user_by_id(user_id, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
     return user
@@ -33,7 +33,7 @@ def get_user_view(user_id: int, db: Session = Depends(get_db)):
 # Delete user
 @router.delete('/{user_id}')
 def delete_user_view(user_id: int, db: Session = Depends(get_db)):
-    success = db_user.delete_user(db, user_id)
+    success = db_user.delete_user(user_id, db)
     if not success:
         raise HTTPException(status_code=404, detail="User not found!")
     return {"message": "Successfully deleted!"}
@@ -42,7 +42,7 @@ def delete_user_view(user_id: int, db: Session = Depends(get_db)):
 # Update user
 @router.put('/{user_id}')
 def update_user_view(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
-    updated_user = db_user.update_user(db, user_id, user)
+    updated_user = db_user.update_user(user_id, user, db)
     if not updated_user:
         raise HTTPException(status_code=404, detail="User not found!")
     return updated_user

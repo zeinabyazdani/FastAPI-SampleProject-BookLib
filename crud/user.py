@@ -4,8 +4,8 @@ from schemas.user import UserCreate
 from db.hash import Hash
 
 
-def create_user(db: Session, request: UserCreate):
-    user = User(name = request.name, 
+def create_user(request: UserCreate, db: Session):
+    user = User(username = request.username, 
                 email = request.email, 
                 password = Hash.bcrypt(request.password))
     db.add(user)
@@ -18,11 +18,15 @@ def get_users(db: Session):
     return db.query(User).all()
 
 
-def get_user_by_id(db: Session, user_id: int):
+def get_user_by_id(user_id: int, db: Session):
     return db.query(User).filter(User.id == user_id).first()
 
 
-def delete_user(db: Session, user_id: int):
+def get_user_by_username(username: str, db: Session):
+    return db.query(User).filter(User.username == username).first()
+
+
+def delete_user(user_id: int, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
     if user:
         db.delete(user)
@@ -31,10 +35,10 @@ def delete_user(db: Session, user_id: int):
     return False
 
 
-def update_user(user_id, db: Session, request: UserCreate):
+def update_user(user_id, request: UserCreate, db: Session):
     user = db.query(User).filter(User.id == user_id).first()
     if user:
-        user.name = request.name
+        user.username = request.username
         user.email = request.email
         user.password = Hash.bcrypt(request.password)
         db.commit()

@@ -1,5 +1,9 @@
 from db.database import Base
 from sqlalchemy import Column, Integer, String, Boolean
+from datetime import datetime
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -10,6 +14,8 @@ class User(Base):
     email = Column(String)
     password = Column(String)
 
+    borrows = relationship("Borrow", back_populates="user")
+
 
 class Book(Base):
     __tablename__ = "books"
@@ -18,4 +24,19 @@ class Book(Base):
     title = Column(String)
     author = Column(String)
     year = Column(Integer)
-    is_available = Column(Boolean, default=True)
+
+    borrows = relationship("Borrow", back_populates="book")
+
+
+class Borrow(Base):
+    __tablename__ = "borrow"
+
+    id = Column(Integer, primary_key=True, index=True)
+    book_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("books.id"))
+    borrow_date = Column(DateTime, default=datetime.utcnow())
+    return_date = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="borrows")
+    book = relationship("Book", back_populates="borrows")
+

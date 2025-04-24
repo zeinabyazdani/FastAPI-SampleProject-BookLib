@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from router import user, book, auth
+from router import user, book, auth, borrow
 from db import models
 from db.database import engine
 
@@ -8,6 +8,7 @@ def init_routers(app: FastAPI) -> None:
     app.include_router(user.router)
     app.include_router(book.router)
     app.include_router(auth.router)
+    app.include_router(borrow.router)
 
 
 def create_app() -> FastAPI:

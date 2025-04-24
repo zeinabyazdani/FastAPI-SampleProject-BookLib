@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from db.database import get_db
 from sqlalchemy.orm import Session
 from crud import user as db_user
-from schemas.user import UserCreate, UserOut
+from schemas import UserCreate, UserOut
 from typing import List
 
 

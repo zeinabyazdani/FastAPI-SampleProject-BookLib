@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from db.models import Book
-from schemas.book import BookCreate
+from schemas import BookCreate
 from fastapi import HTTPException
 
 
-def add_book(db: Session, request: BookCreate):
+def add_book(request: BookCreate, db: Session):
     book = Book(title = request.title, 
                 author = request.author, 
                 year = request.year, 
@@ -19,11 +19,11 @@ def get_books(db: Session):
     return db.query(Book).all()
 
 
-def get_book_by_id(db: Session, book_id: int):
+def get_book_by_id(book_id: int, db: Session):
     return db.query(Book).filter(Book.id==book_id).first()
 
 
-def update_book(book_id, db: Session, request: BookCreate):
+def update_book(book_id, request: BookCreate, db: Session):
     book = db.query(Book).filter(Book.id==book_id).first()
     if book:
         book.title = request.title
@@ -41,7 +41,7 @@ def available_books(db: Session):
     return db.query(Book).filter(Book.is_available.is_(True)).all()
 
 
-def get_borrow(db: Session, book_id: int):
+def get_borrow(book_id: int, db: Session):
     book = db.query(Book).filter(Book.id == book_id).first()
     if not book: raise HTTPException(status_code=404, detail="Book not found.")
     if not book.is_available: raise HTTPException(status_code=400, detail="Book is already borrowed.")
@@ -51,7 +51,7 @@ def get_borrow(db: Session, book_id: int):
     return book
 
 
-def get_return(db: Session, book_id: int):
+def get_return(book_id: int, db: Session):
     book = db.query(Book).filter(Book.id==book_id).first()
     if not book: raise HTTPException(status_code=404, detail="Book not found.")
     if book.is_available: raise HTTPException(status_code=400, detail="Book is already returned.")
@@ -62,7 +62,7 @@ def get_return(db: Session, book_id: int):
     return book
 
 
-def delete_book(db: Session, book_id: int):
+def delete_book(book_id: int, db: Session):
     book = db.query(Book).filter(Book.id==book_id).first()
     if book:
         db.delete(book)

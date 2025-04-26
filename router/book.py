@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.database import get_db
 from crud import book as db_book
-from schemas import BookCreate, BookOut
+from schemas import BookCreate, BookOut, BorrowOut
 from typing import List
 
 
@@ -34,25 +34,9 @@ def update_book_view(book_id:int, book: BookCreate, db: Session = Depends(get_db
     return updated_book
 
 
-@router.get('/available/', response_model=List[BookOut])
+@router.get('/available/', response_model=List[BorrowOut])
 def available_books_view(db: Session = Depends(get_db)):
     return db_book.available_books(db)
-
-
-@router.get('/borrow/{book_id}')
-def get_borrow_view(book_id: int, db: Session = Depends(get_db)):
-    book = db_book.get_borrow(book_id, db)
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found!")
-    return book
-
-
-@router.get('/return/{book_id}')
-def get_return_view(book_id: int, db: Session = Depends(get_db)):
-    book =  db_book.get_return(book_id, db)
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found!")
-    return book
 
 
 @router.delete('/{book_id}')
